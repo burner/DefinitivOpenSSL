@@ -1,4 +1,5 @@
 import std.array : array, split;
+import std.exception : enforce;
 import std.algorithm.searching : any, endsWith, startsWith, canFind;
 import std.algorithm.iteration : each, filter, joiner, map;
 import std.path;
@@ -59,7 +60,7 @@ DppRslt callDpp(string file) {
 	string dppFN = baseName(file);
 
 	string[] dppCall = ["dub", "run", "dpp", "--", "--keep-d-files", dppFN
-		, "--include-path", "include/openssl/"];
+		, `--include-path="include/openssl/,crypto/aes/,crypto/"`];
 	auto ret = DppRslt(file
 			, File(dppFN ~ ".out", "w")
 			, File(dppFN ~ ".err", "w"));
@@ -98,6 +99,8 @@ int main() {
 	foreach(ver; opensslVersions()) {
 		dppFiles ~= buildDppFile(ver);
 	}
+	auto fixUpIncludes = executeShell(`find openssl -name \*.h ! -type l | xargs sed -i 's/[ ]*#[ ]*include [ ]*<\([-_a-z0-9A-Z]*\.h\)>/#include "\1"/g'`);
+	enforce(fixUpIncludes.status == 0, fixUpIncludes.output);
 	DppRslt[] rslts;
 	foreach(dppFile; dppFiles) {
 		auto tmp = callDpp(dppFile);
