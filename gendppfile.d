@@ -60,7 +60,7 @@ DppRslt callDpp(string file) {
 	string dppFN = baseName(file);
 
 	string[] dppCall = ["dub", "run", "dpp", "--", "--keep-d-files", dppFN
-		, `--include-path="include/openssl/,crypto/aes/,crypto/"`];
+		, `--include-path="./include"`];
 	auto ret = DppRslt(file
 			, File(dppFN ~ ".out", "w")
 			, File(dppFN ~ ".err", "w"));
