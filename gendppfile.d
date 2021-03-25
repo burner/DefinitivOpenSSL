@@ -1,4 +1,4 @@
-import std.array : array;
+import std.array : array, split;
 import std.algorithm.searching : any, endsWith, startsWith, canFind;
 import std.algorithm.iteration : each, filter, joiner, map;
 import std.path;
@@ -6,6 +6,7 @@ import std.process;
 import std.format;
 import std.file;
 import std.stdio;
+import std.string;
 
 auto opensslVersions() {
 	return dirEntries("openssl/", "*", SpanMode.shallow)
@@ -106,11 +107,15 @@ int main() {
 		rslt.exitCode = wait(rslt.pid);	
 		rslt.sOut.close();
 		rslt.sErr.close();
-		rslt.worked = canFind(readText(rslt.sErr.name), "undefined reference to `main");
+		string dFP = rslt.file[0 .. $-2];
+		string dFN = baseName(dFP);
+		const moreThan = exists(dFP) && readText(dFP).splitLines().length > 500;
+		writefln("%s %s", dFN, moreThan);
+		rslt.worked = canFind(readText(rslt.sErr.name), "undefined reference to `main")
+			&& moreThan;
 		writefln("%s %s", rslt.file, rslt.worked ? "Worked" : "Failed");
 		if(rslt.worked) {
-			string dFN = baseName(rslt.file[0 .. $-2]);
-			copy(rslt.file[0 .. $-2], "source/openssl/" ~ dFN);
+			copy(dFP, "source/openssl/" ~ dFN);
 		}
 	}
 	return 0;
