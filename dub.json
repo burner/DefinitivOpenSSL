@@ -1,0 +1,9 @@
+{
+	"authors": [
+		"Robert burner Schadek"
+	],
+	"copyright": "Copyright © 2021 Symmetry Investments",
+	"description": "All openssl version headers in one library",
+	"license": "LGPL3",
+	"name": "definitivopenssl"
+}
